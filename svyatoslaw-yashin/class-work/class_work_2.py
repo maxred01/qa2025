@@ -17,3 +17,4 @@ assert response_json['fact'] != 0, f'Параметра "length" нет в от�
 assert response_json['fact'] is not None, f'Параметра "length" пустой'
 assert response_json['fact'] == str, f'Параметра "fact" неверный тип данных'
 assert response_json['fact'] == int, f'Параметра "length" неверный тип данных'
+
