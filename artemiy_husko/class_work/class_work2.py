@@ -45,3 +45,4 @@ assert isinstance(response_json.get("fact"), str), "Значение 'fact' не
 assert isinstance(response_json.get("length"), int), "Значение 'length' не является числом"
 
 assert response_json['next_page_url'], f"Параметра 'next_page_url' нет в ответе"
+
