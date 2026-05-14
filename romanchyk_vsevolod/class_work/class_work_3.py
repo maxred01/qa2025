@@ -47,3 +47,4 @@ def test_api_v1_activities(data_id, data_title, data_due_date, data_completed, s
 # assert isinstance(response_json["fact"], str), f"Параметр 'fact' неверный тип данных"
 # assert type(response_json["length"]) == int, f"Параметр 'length' неверный тип данных"
 
+
