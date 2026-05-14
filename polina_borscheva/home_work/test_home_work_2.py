@@ -5,7 +5,7 @@ import pytest
 @pytest.mark.parametrize('data_id, data_title, data_description, data_pageCount, data_excerpt, data_publishDate, status_code', [
     (100, '4334434', 'gf', 67, 'hello ken', "2026-05-12T16:43:35.873Z", 200),
     (89, '1871863', 645, '', True,  False, 400),
-    ('', '', 45675648, True, 'ss', None, 400),
+    ('', '', 2342345, True, 'ss', None, 400),
     ('1871863', 0, 9, '3435545', True, True, 400),
     (None, None, None, None, None, None, 400)
 ])
