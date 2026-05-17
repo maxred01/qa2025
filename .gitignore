@@ -3,7 +3,7 @@
 #launch.json folder
 .vscode/
 .idea/
-__pycache__/
+__pycache__/o
 #Cache folder
 .alcache/
 #Symbols folder
