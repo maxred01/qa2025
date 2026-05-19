@@ -30,6 +30,13 @@ def test_api_v1_books_post(data_id, data_title, data_description, data_page_coun
 
         data = response.json()
 
+        assert data["id"] == data_id
+        assert data["title"] == data_title
+        assert data["description"] == data_description
+        assert data["pageCount"] == data_page_count
+        assert data["excerpt"] == data_excerpt
+        assert data["publishDate"] == data_publish_date
+
         assert isinstance(data["id"], int)
         assert isinstance(data["title"], str)
         assert isinstance(data["description"], str)
