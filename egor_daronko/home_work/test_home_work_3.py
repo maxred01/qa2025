@@ -110,3 +110,6 @@ def test_api_v1_books_delete(data_id, status_code):
     response = requests.delete(url=url)
 
     assert response.status_code == status_code
+
+    response_get = requests.get(url=url)
+    assert response_get.status_code == 404
