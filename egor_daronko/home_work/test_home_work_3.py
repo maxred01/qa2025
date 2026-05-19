@@ -43,7 +43,7 @@ def test_api_v1_books_post(data_id, data_title, data_description, data_page_coun
         assert isinstance(data["pageCount"], int)
         assert isinstance(data["excerpt"], str)
         assert isinstance(data["publishDate"], str)
-#
+
 @pytest.mark.parametrize('data_id, status_code',
     [
         (1, 200),
