@@ -19,6 +19,7 @@ def test_checkbox():
 # #
 # # assert check_box.is_enabled()
 
+
     def test_checkbox():
         driver = webdriver.Chrome()
         driver.maximize_window()
