@@ -7,7 +7,6 @@ def test_webtables():
 
     driver = webdriver.Chrome()
     driver.maximize_window()
-
     driver.get('https://demoqa.com/webtables')
 
     driver.find_element(By.XPATH, '//*[@id="addNewRecordButton"]').click()
