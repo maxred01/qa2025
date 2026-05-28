@@ -40,4 +40,3 @@ def test_links():
 
     time.sleep(2)
     driver.quit()
-    +

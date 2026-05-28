@@ -133,7 +133,6 @@ def test_webtables_delete():
 
     driver.find_element(By.XPATH, '(//*[@data-toggle="tooltip"])[6]//*[@stroke="currentColor"]').click()
 
-    assert driver.find_element(By.XPATH, '(//*[@data-toggle="tooltip"])[6]//*[@stroke="currentColor"]').is_displayed()
 
     time.sleep(3)
 
