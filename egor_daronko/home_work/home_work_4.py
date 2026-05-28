@@ -59,6 +59,7 @@ for xpath in listi:
     field.send_keys(Keys.CONTROL + "a")
     field.send_keys(Keys.DELETE)
     time.sleep(0.5)
+
         # Заполняем поля данными
 driver.find_element(By.XPATH, "//*[@id='firstName']").send_keys('test')
 time.sleep(0.5)
