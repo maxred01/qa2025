@@ -3,11 +3,10 @@ import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
+from polina_borscheva.conftest import driver
 
-def test_checkbox():
 
-    driver = webdriver.Chrome()
-    driver.maximize_window()
+def test_checkbox(driver):
 
     driver.get('https://demoqa.com/checkbox')
 
@@ -19,7 +18,6 @@ def test_checkbox():
     assert checkbox.is_enabled()
     time.sleep(3)
 
-    driver.quit()
 
 
 def test_radio_button():
