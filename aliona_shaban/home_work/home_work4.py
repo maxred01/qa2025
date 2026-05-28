@@ -19,7 +19,10 @@ def test_webtable():
     driver.find_element(By.XPATH, '//*[@id="salary-wrapper"]//input').send_keys('5400')
     driver.find_element(By.XPATH, '//*[@id="department-wrapper"]//input').send_keys('legal')
     driver.find_element(By.XPATH, '(//*[@aria-modal="true"]//button)[2]').click()
+    elements = driver.find_element(By.XPATH, )
 
+
+# assert len(driver.find_element() == 3
 # results_name = driver.find_element(By.XPATH, '(//*[@id="root"]//td)[1]').text
 # assert results_name.find( 'test') != -1
 time.sleep(5)
