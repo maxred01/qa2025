@@ -88,24 +88,54 @@ jobs:
             fi
           done
 
-      - name: Verify all changes are inside */home_work/ directories
+      - name: Verify changes are only in student home_work or allowed shared files
         if: always()
         run: |
           set -euo pipefail
           BASE_SHA="${{ github.event.pull_request.base.sha }}"
           HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
           git diff --name-only "$BASE_SHA" "$HEAD_SHA" > /tmp/all_changed.txt || true
+
+          ALLOWED_PATTERNS=(
+            "^[^/]+/home_work/"      # папки студентов
+            "^\.github/"             # GitHub Actions, шаблоны PR и т.д.
+            "^requirements\.txt$"    # общие зависимости
+            "^README\.md$"           # описание репозитория
+            "^docs/"                 # документация
+            "^templates/"            # шаблоны заданий
+            "^\.gitignore$"
+            "^pyproject\.toml$"
+          )
 
           errors=0
           while IFS= read -r file || [ -n "$file" ]; do
-            if [ -n "$file" ] && [[ ! "$file" =~ ^[^/]+/home_work/ ]]; then
-              echo "❌ ERROR: File '$file' is outside allowed */home_work/ path."
+            if [ -z "$file" ]; then continue; fi
+
+            allowed=false
+            for pattern in "${ALLOWED_PATTERNS[@]}"; do
+              if [[ "$file" =~ $pattern ]]; then
+                allowed=true
+                break
+              fi
+            done
+
+            if [ "$allowed" = false ]; then
+              echo "❌ ERROR: File '$file' is outside allowed paths."
               errors=$((errors + 1))
             fi
           done < /tmp/all_changed.txt
 
           if [ $errors -gt 0 ]; then
-            echo "Total invalid files: $errors"
+            echo ""
+            echo "Разрешённые пути для изменения:"
+            echo "  • */home_work/          — домашние задания студентов"
+            echo "  • .github/              — workflows и шаблоны"
+            echo "  • requirements.txt"
+            echo "  • README.md"
+            echo "  • docs/"
+            echo "  • templates/"
             exit 1
           fi
-          echo "✅ All changes are within allowed home_work directories."
+
+          echo "✅ All changes are in allowed locations."
