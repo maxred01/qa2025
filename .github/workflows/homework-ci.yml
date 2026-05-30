@@ -1,0 +1,141 @@
+name: Student Homework CI
+
+on:
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  check-homework:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install common dependencies (if exists)
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+
+      - name: Install linting & testing tools
+        run: |
+          pip install flake8 pytest
+
+      - name: Detect changed student home_work directories
+        id: changed
+        run: |
+          set -euo pipefail
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
+          git diff --name-only "$BASE_SHA" "$HEAD_SHA" > /tmp/changed_files.txt || true
+
+          if [ ! -s /tmp/changed_files.txt ]; then
+            echo "dirs=" >> "$GITHUB_OUTPUT"
+            echo "No changed files detected."
+            exit 0
+          fi
+
+          cut -d'/' -f1 /tmp/changed_files.txt | sort -u > /tmp/top_dirs.txt
+
+          dirs_to_check=""
+          while IFS= read -r dir || [ -n "$dir" ]; do
+            if [ -d "$dir/home_work" ]; then
+              if [ -n "$dirs_to_check" ]; then
+                dirs_to_check="$dirs_to_check $dir"
+              else
+                dirs_to_check="$dir"
+              fi
+            fi
+          done < /tmp/top_dirs.txt
+
+          echo "dirs=$dirs_to_check" >> "$GITHUB_OUTPUT"
+          echo "Folders to check: $dirs_to_check"
+
+      - name: Lint changed home_work with flake8
+        if: steps.changed.outputs.dirs != ''
+        run: |
+          set -euo pipefail
+          IFS=' ' read -ra DIRS <<< "${{ steps.changed.outputs.dirs }}"
+          for d in "${DIRS[@]}"; do
+            if [ -n "$d" ] && [ -d "$d/home_work" ]; then
+              echo "🔍 Flake8 check for $d/home_work"
+              flake8 "$d/home_work/" --count --max-line-length=100 --statistics --show-source
+            fi
+          done
+
+      - name: Run pytest for changed students
+        if: steps.changed.outputs.dirs != ''
+        run: |
+          set -euo pipefail
+          IFS=' ' read -ra DIRS <<< "${{ steps.changed.outputs.dirs }}"
+          for d in "${DIRS[@]}"; do
+            if [ -n "$d" ] && [ -d "$d/home_work" ]; then
+              echo "🧪 Running tests in $d/home_work"
+              pytest "$d/home_work/" -v --tb=short
+            fi
+          done
+
+      - name: Verify changes are only in student home_work or allowed shared files
+        if: always()
+        run: |
+          set -euo pipefail
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
+          git diff --name-only "$BASE_SHA" "$HEAD_SHA" > /tmp/all_changed.txt || true
+
+          ALLOWED_PATTERNS=(
+            "^[^/]+/home_work/"      # папки студентов
+            "^\.github/"             # GitHub Actions, шаблоны PR и т.д.
+            "^requirements\.txt$"    # общие зависимости
+            "^README\.md$"           # описание репозитория
+            "^docs/"                 # документация
+            "^templates/"            # шаблоны заданий
+            "^\.gitignore$"
+            "^pyproject\.toml$"
+          )
+
+          errors=0
+          while IFS= read -r file || [ -n "$file" ]; do
+            if [ -z "$file" ]; then continue; fi
+
+            allowed=false
+            for pattern in "${ALLOWED_PATTERNS[@]}"; do
+              if [[ "$file" =~ $pattern ]]; then
+                allowed=true
+                break
+              fi
+            done
+
+            if [ "$allowed" = false ]; then
+              echo "❌ ERROR: File '$file' is outside allowed paths."
+              errors=$((errors + 1))
+            fi
+          done < /tmp/all_changed.txt
+
+          if [ $errors -gt 0 ]; then
+            echo ""
+            echo "Разрешённые пути для изменения:"
+            echo "  • */home_work/          — домашние задания студентов"
+            echo "  • .github/              — workflows и шаблоны"
+            echo "  • requirements.txt"
+            echo "  • README.md"
+            echo "  • docs/"
+            echo "  • templates/"
+            exit 1
+          fi
+
+          echo "✅ All changes are in allowed locations."
