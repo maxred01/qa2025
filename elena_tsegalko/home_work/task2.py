@@ -10,8 +10,7 @@ response = requests.get(url=URL,
 
 response_json = response.json()
 
-assert response.status_code == 200, f"Неверный статус код. Ожидался 200, получен {
-    response.status_code}"
+assert response.status_code == 200, "Неверный статус код. Ожидался 200"
 
 assert response_json["data"][0]["breed"], "Параметра 'breed' нет в ответе"
 assert response_json["data"][0]["country"], "Параметра 'country' нет в ответе"
