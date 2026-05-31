@@ -1,11 +1,10 @@
 import time
 import random
-
-from selenium import webdriver
 from selenium.webdriver.common.by import By
+from polina_borscheva.conftest import driver
 
 
-def test_checkbox():
+def test_checkbox(driver):
     text = ['Привет!',
         'Как дела?',
         'Я все проиграл!',
@@ -25,18 +24,14 @@ def test_checkbox():
                   15,
             ]
     time_random = random.choice(time_sleep)
-    driver = webdriver.Chrome()
-    driver.maximize_window()
 
     driver.get('https://belbet.by/')
 
     driver.find_element(By.XPATH, '//button[contains(text(),"Принять")]').click()
-    time.sleep(2)
+
     driver.find_element(By.ID, 'uw-main-button').click()
-    time.sleep(2)
 
     driver.find_element(By.ID, 'uw-button-chat').click()
-    time.sleep(10)
 
     for i in range(5):
         driver.find_element(By.XPATH, '//textarea[@placeholder="Введите текст"]').send_keys(text_random)
@@ -44,4 +39,4 @@ def test_checkbox():
         driver.find_element(By.ID, 'uw-message-submit-button').click()
 
     time.sleep(2)
-    driver.quit()
+
