@@ -2,13 +2,24 @@ import requests
 import pytest
 
 
-@pytest.mark.parametrize("data_id, data_title, data_description, data_pageCount, data_excerpt, data_publishDate, status_code", [
-    (5, "test", "string", 0, "string", "2026-05-13T18:35:43.071Z", 200),
-    ("123424", 223535, '', False, 400, "wrwrwff", 201),
-    ('', '', 223535, None, 400, "dwrfwf", "wfwefweg"),
-    (" 32482942 ", " 32482942 ", True, True, 400, " ", " "),
-    (None, None, None, None, 400, 9242, 2424),
-])
+@pytest.mark.parametrize(
+    [
+        "data_id",
+        "data_title",
+        "data_description",
+        "data_pageCount",
+        "data_excerpt",
+        "data_publishDate",
+        "status_code"
+    ],
+    [
+        (5, "test", "string", 0, "string", "2026-05-13T18:35:43.071Z", 200),
+        ("123424", 223535, '', False, 400, "wrwrwff", 201),
+        ('', '', 223535, None, 400, "dwrfwf", "wfwefweg"),
+        (" 32482942 ", " 32482942 ", True, True, 400, " ", " "),
+        (None, None, None, None, 400, 9242, 2424),
+    ],
+)
 # @pytest.mark.skip("Пропускаем")
 def test_api_v1_books_post(
         data_id,
@@ -65,13 +76,17 @@ def test_api_v1_books_get(data_id, status_code):
     assert isinstance(response_json['excerpt'], str)
 
 
-@pytest.mark.parametrize("data_id, data_title, data_description, data_pageCount, data_excerpt, data_publishDate, status_code", [
-    (0, "string", "string", 0, "string", "2026-05-17T08:25:29.171Z", 200),
-    ("123424", 223535, '', False, 400, "wrwrwff", 201),
-    ('', '', 223535, None, 400, "dwrfwf", "wfwefweg"),
-    (" 32482942 ", " 32482942 ", True, True, 400, " ", " "),
-    (None, None, None, None, 400, 9242, 2424),
-])
+@pytest.mark.parametrize(
+    "data_id, data_title, data_description, "
+    "data_pageCount, data_excerpt, data_publishDate, status_code",
+    [
+        (0, "string", "string", 0, "string", "2026-05-17T08:25:29.171Z", 200),
+        ("123424", 223535, '', False, 400, "wrwrwff", 201),
+        ('', '', 223535, None, 400, "dwrfwf", "wfwefweg"),
+        (" 32482942 ", " 32482942 ", True, True, 400, " ", " "),
+        (None, None, None, None, 400, 9242, 2424),
+    ],
+)
 def test_api_v1_books_put(
         data_id,
         data_title,

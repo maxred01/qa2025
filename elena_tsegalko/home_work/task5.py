@@ -68,9 +68,9 @@ element_firstName = driver.find_element(By.XPATH, f"//*[text()='{'Harry'}']")
 element_lastName = driver.find_element(By.XPATH, f"//*[text()='{'Potter'}']")
 element_age = driver.find_element(By.XPATH, f"//*[text()='{12}']")
 
-assert element_firstName.text == "Harry", f"Имя пользователя не изменилось"
-assert element_lastName.text == "Potter", f"Фамилия пользователя не изменилась"
-assert int(element_age.text) == 12, f"Возраст пользователя не изменился"
+assert element_firstName.text == "Harry", "Имя пользователя не изменилось"
+assert element_lastName.text == "Potter", "Фамилия пользователя не изменилась"
+assert int(element_age.text) == 12, "Возраст пользователя не изменился"
 time.sleep(2)
 
 
