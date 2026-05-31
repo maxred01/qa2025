@@ -40,11 +40,11 @@ for user in users:
     driver.find_element(By.ID, 'department').send_keys(user["department"])
     driver.find_element(By.ID, 'submit').click()
     time.sleep(2)
-    element_firstName = driver.find_element(By.XPATH, f"//*[text()='{user["firstname"]}']")
-    element_lastName = driver.find_element(By.XPATH, f"//*[text()='{user["lastname"]}']")
+    element_firstName = driver.find_element(By.XPATH, f"//*[text()='{user['firstname']}']")
+    element_lastName = driver.find_element(By.XPATH, f"//*[text()='{user['lastname']}']")
 
-    assert element_firstName.text == user["firstname"], f"Пользователь {user["firstname"]} {user["lastname"]} не создан."
-    assert element_lastName.text == user["lastname"], f"Пользователь {user["firstname"]} {user["lastname"]} не создан."
+    assert element_firstName.text == user['firstname'], f"Пользователь {user['firstname']} {user['lastname']} не создан."
+    assert element_lastName.text == user['lastname'], f"Пользователь {user['firstname']} {user['lastname']} не создан."
     time.sleep(2)
 
 # редактирование формы
@@ -60,8 +60,8 @@ time.sleep(2)
 driver.find_element(By.ID, 'submit').click()
 time.sleep(5)
 
-element_firstName = driver.find_element(By.XPATH, f"//*[text()='{"Harry"}']")
-element_lastName = driver.find_element(By.XPATH, f"//*[text()='{"Potter"}']")
+element_firstName = driver.find_element(By.XPATH, f"//*[text()='{'Harry'}']")
+element_lastName = driver.find_element(By.XPATH, f"//*[text()='{'Potter'}']")
 element_age = driver.find_element(By.XPATH, f"//*[text()='{12}']")
 
 assert element_firstName.text == "Harry", f"Имя пользователя не изменилось"
