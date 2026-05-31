@@ -2,15 +2,13 @@ import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 users = [
     {
         "firstname": "Vasya",
         "lastname": "Vaskov",
         "userEmail": "Vaskov@test.ru",
         "age": 24,
-        "salary" : 2800,
+        "salary": 2800,
         "department": "QA"
     },
     {
@@ -18,7 +16,7 @@ users = [
         "lastname": "Petrov",
         "userEmail": "Petrov@test.ru",
         "age": 30,
-        "salary" : 5000,
+        "salary": 5000,
         "department": "DevOps"
     }
 ]
@@ -40,11 +38,17 @@ for user in users:
     driver.find_element(By.ID, 'department').send_keys(user["department"])
     driver.find_element(By.ID, 'submit').click()
     time.sleep(2)
-    element_firstName = driver.find_element(By.XPATH, f"//*[text()='{user['firstname']}']")
-    element_lastName = driver.find_element(By.XPATH, f"//*[text()='{user['lastname']}']")
+    element_firstName = driver.find_element(
+        By.XPATH, f"//*[text()='{user['firstname']}']")
+    element_lastName = driver.find_element(
+        By.XPATH, f"//*[text()='{user['lastname']}']")
 
-    assert element_firstName.text == user['firstname'], f"Пользователь {user['firstname']} {user['lastname']} не создан."
-    assert element_lastName.text == user['lastname'], f"Пользователь {user['firstname']} {user['lastname']} не создан."
+    assert element_firstName.text == user['firstname'], f"Пользователь {
+        user['firstname']} {
+        user['lastname']} не создан."
+    assert element_lastName.text == user['lastname'], f"Пользователь {
+        user['firstname']} {
+        user['lastname']} не создан."
     time.sleep(2)
 
 # редактирование формы
@@ -70,7 +74,7 @@ assert int(element_age.text) == 12, f"Возраст пользователя н
 time.sleep(2)
 
 
-#Удаление формы
+# Удаление формы
 button = driver.find_element(By.ID, "delete-record-5")
 ActionChains(driver).move_to_element(button).click().perform()
 
