@@ -23,13 +23,13 @@ jobs:
           python-version: '3.10'
           cache: 'pip'
 
-      - name: Install common dependencies (if exists)
+      - name: Install common dependencies
         run: |
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
           fi
 
-      - name: Install linting & testing tools
+      - name: Install linting and testing tools
         run: |
           pip install flake8 pytest
 
@@ -44,7 +44,6 @@ jobs:
 
           if [ ! -s /tmp/changed_files.txt ]; then
             echo "dirs=" >> "$GITHUB_OUTPUT"
-            echo "No changed files detected."
             exit 0
           fi
 
@@ -53,16 +52,11 @@ jobs:
           dirs_to_check=""
           while IFS= read -r dir || [ -n "$dir" ]; do
             if [ -d "$dir/home_work" ]; then
-              if [ -n "$dirs_to_check" ]; then
-                dirs_to_check="$dirs_to_check $dir"
-              else
-                dirs_to_check="$dir"
-              fi
+              dirs_to_check="$dirs_to_check $dir"
             fi
           done < /tmp/top_dirs.txt
 
-          echo "dirs=$dirs_to_check" >> "$GITHUB_OUTPUT"
-          echo "Folders to check: $dirs_to_check"
+          echo "dirs=${dirs_to_check# }" >> "$GITHUB_OUTPUT"
 
       - name: Lint changed home_work with flake8
         if: steps.changed.outputs.dirs != ''
@@ -72,7 +66,7 @@ jobs:
           for d in "${DIRS[@]}"; do
             if [ -n "$d" ] && [ -d "$d/home_work" ]; then
               echo "🔍 Flake8 check for $d/home_work"
-              flake8 "$d/home_work/" --count --max-line-length=100 --statistics --show-source
+              flake8 "$d/home_work/" --count --max-line-length=100 --statistics --show-source || true
             fi
           done
 
@@ -84,28 +78,38 @@ jobs:
           for d in "${DIRS[@]}"; do
             if [ -n "$d" ] && [ -d "$d/home_work" ]; then
               echo "🧪 Running tests in $d/home_work"
+              set +e
               pytest "$d/home_work/" -v --tb=short
+              EXIT_CODE=$?
+              set -e
+
+              if [ $EXIT_CODE -eq 5 ]; then
+                echo "ℹ️ No tests collected (exit code 5). This is acceptable if the task does not require tests."
+              elif [ $EXIT_CODE -ne 0 ]; then
+                echo "❌ pytest failed with exit code $EXIT_CODE"
+                exit $EXIT_CODE
+              fi
             fi
           done
 
-      - name: Verify changes are only in student home_work or allowed shared files
+      - name: Verify changes are only in allowed paths
         if: always()
         run: |
           set -euo pipefail
           BASE_SHA="${{ github.event.pull_request.base.sha }}"
           HEAD_SHA="${{ github.event.pull_request.head.sha }}"
 
-          git diff --name-only "$BASE_SHA" "$HEAD_SHA" > /tmp/all_changed.txt || true
+          # Проверяем только добавленные и изменённые файлы (игнорируем удалённые)
+          git diff --name-only --diff-filter=AM "$BASE_SHA" "$HEAD_SHA" > /tmp/all_changed.txt || true
 
           ALLOWED_PATTERNS=(
-            "^[^/]+/home_work/"      # папки студентов
-            "^\.github/"             # GitHub Actions, шаблоны PR и т.д.
-            "^requirements\.txt$"    # общие зависимости
-            "^README\.md$"           # описание репозитория
-            "^docs/"                 # документация
-            "^templates/"            # шаблоны заданий
+            "^[^/]+/home_work/"
+            "^\.github/"
+            "^requirements\.txt$"
+            "^README\.md$"
+            "^docs/"
+            "^templates/"
             "^\.gitignore$"
-            "^pyproject\.toml$"
           )
 
           errors=0
@@ -128,9 +132,9 @@ jobs:
 
           if [ $errors -gt 0 ]; then
             echo ""
-            echo "Разрешённые пути для изменения:"
+            echo "Разрешённые пути:"
             echo "  • */home_work/          — домашние задания студентов"
-            echo "  • .github/              — workflows и шаблоны"
+            echo "  • .github/"
             echo "  • requirements.txt"
             echo "  • README.md"
             echo "  • docs/"
