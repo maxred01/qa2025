@@ -77,7 +77,7 @@ ActionChains(driver).move_to_element(button).click().perform()
 rows = driver.find_elements(By.CSS_SELECTOR, "table tbody tr")
 count = len(rows)
 
-assert count == 4, f"Ошибка удаления строк"
+assert count == 4, "Ошибка удаления строк"
 
 
 time.sleep(2)
