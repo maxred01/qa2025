@@ -43,12 +43,8 @@ for user in users:
     element_lastName = driver.find_element(
         By.XPATH, f"//*[text()='{user['lastname']}']")
 
-    assert element_firstName.text == user['firstname'], f"Пользователь {
-        user['firstname']} {
-        user['lastname']} не создан."
-    assert element_lastName.text == user['lastname'], f"Пользователь {
-        user['firstname']} {
-        user['lastname']} не создан."
+    assert element_firstName.text == user['firstname'], "Пользователь не создан."
+    assert element_lastName.text == user['lastname'], "Пользователь не создан."
     time.sleep(2)
 
 # редактирование формы
