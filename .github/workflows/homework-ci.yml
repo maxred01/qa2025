@@ -103,7 +103,8 @@ jobs:
           git diff --name-only --diff-filter=AM "$BASE_SHA" "$HEAD_SHA" > /tmp/all_changed.txt || true
 
           ALLOWED_PATTERNS=(
-            "^[^/]+/home_work/"
+            "^[^/]+/home_work/"      # домашние задания
+            "^[^/]+/class_work/"     # классная работа
             "^\.github/"
             "^requirements\.txt$"
             "^README\.md$"
@@ -134,6 +135,7 @@ jobs:
             echo ""
             echo "Разрешённые пути:"
             echo "  • */home_work/          — домашние задания студентов"
+            echo "  • */class_work/         — классная работа"
             echo "  • .github/"
             echo "  • requirements.txt"
             echo "  • README.md"
