@@ -23,17 +23,15 @@ jobs:
           python-version: '3.10'
           cache: 'pip'
 
-      - name: Install common dependencies
+      - name: Install dependencies
         run: |
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
           fi
-
-      - name: Install linting and testing tools
-        run: |
           pip install flake8 pytest
 
-      - name: Detect changed student home_work directories
+      # Определяем, у каких студентов есть папка home_work
+      - name: Detect students with home_work folder
         id: changed
         run: |
           set -euo pipefail
@@ -58,53 +56,54 @@ jobs:
 
           echo "dirs=${dirs_to_check# }" >> "$GITHUB_OUTPUT"
 
-      - name: Lint changed home_work with flake8
+      # === ПРОВЕРКИ ТОЛЬКО ДЛЯ home_work ===
+      - name: Lint home_work with flake8
         if: steps.changed.outputs.dirs != ''
         run: |
           set -euo pipefail
           IFS=' ' read -ra DIRS <<< "${{ steps.changed.outputs.dirs }}"
           for d in "${DIRS[@]}"; do
             if [ -n "$d" ] && [ -d "$d/home_work" ]; then
-              echo "🔍 Flake8 check for $d/home_work"
-              flake8 "$d/home_work/" --count --max-line-length=100 --statistics --show-source || true
+              echo "🔍 Flake8: $d/home_work"
+              flake8 "$d/home_work/" --count --max-line-length=100 --show-source || true
             fi
           done
 
-      - name: Run pytest for changed students
+      - name: Run pytest in home_work (if tests exist)
         if: steps.changed.outputs.dirs != ''
         run: |
           set -euo pipefail
           IFS=' ' read -ra DIRS <<< "${{ steps.changed.outputs.dirs }}"
           for d in "${DIRS[@]}"; do
             if [ -n "$d" ] && [ -d "$d/home_work" ]; then
-              echo "🧪 Running tests in $d/home_work"
+              echo "🧪 Pytest: $d/home_work"
               set +e
-              pytest "$d/home_work/" -v --tb=short
+              pytest "$d/home_work/" -q --tb=short
               EXIT_CODE=$?
               set -e
 
               if [ $EXIT_CODE -eq 5 ]; then
-                echo "ℹ️ No tests collected (exit code 5). This is acceptable if the task does not require tests."
+                echo "ℹ️ В home_work/ нет тестов — pytest пропущен"
               elif [ $EXIT_CODE -ne 0 ]; then
-                echo "❌ pytest failed with exit code $EXIT_CODE"
                 exit $EXIT_CODE
               fi
             fi
           done
 
-      - name: Verify changes are only in allowed paths
+      # === ПРОВЕРКА РАЗРЕШЁННЫХ ПУТЕЙ ===
+      - name: Check allowed paths
         if: always()
         run: |
           set -euo pipefail
           BASE_SHA="${{ github.event.pull_request.base.sha }}"
           HEAD_SHA="${{ github.event.pull_request.head.sha }}"
 
-          # Проверяем только добавленные и изменённые файлы (игнорируем удалённые)
           git diff --name-only --diff-filter=AM "$BASE_SHA" "$HEAD_SHA" > /tmp/all_changed.txt || true
 
           ALLOWED_PATTERNS=(
-            "^[^/]+/home_work/"      # домашние задания
-            "^[^/]+/class_work/"     # классная работа
+            "^[^/]+/home_work/"          # Только home_work проверяем
+            "^[^/]+/class_work/"         # class_work — песочница (не проверяем)
+            "^[^/]+/conftest\.py$"       # conftest.py в корне папки студента
             "^\.github/"
             "^requirements\.txt$"
             "^README\.md$"
@@ -134,14 +133,11 @@ jobs:
           if [ $errors -gt 0 ]; then
             echo ""
             echo "Разрешённые пути:"
-            echo "  • */home_work/          — домашние задания студентов"
-            echo "  • */class_work/         — классная работа"
-            echo "  • .github/"
-            echo "  • requirements.txt"
-            echo "  • README.md"
-            echo "  • docs/"
-            echo "  • templates/"
+            echo "  • */home_work/     → проверяем (flake8 + pytest)"
+            echo "  • */class_work/    → не проверяем (песочница)"
+            echo "  • */conftest.py    → разрешён в корне студента"
+            echo "  • .github/, requirements.txt, README.md и т.д."
             exit 1
           fi
 
-          echo "✅ All changes are in allowed locations."
+          echo "✅ Все изменения в разрешённых путях."
