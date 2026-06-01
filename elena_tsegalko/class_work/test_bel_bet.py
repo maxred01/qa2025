@@ -22,9 +22,8 @@ def test_checkbox(driver):
     driver.find_element(By.ID, 'uw-button-chat').click()
 
     for i in range(5):
-        text_random = random.choice(text)
-        driver.find_element(By.XPATH, '//textarea[@placeholder="Введите текст"]').send_keys(text_random)
-        time.sleep(random.randint(10, 15))
+        driver.find_element(By.XPATH, '//textarea[@placeholder="Введите текст"]').send_keys(text[i])
+        time.sleep(random.randint(5, 7))
         driver.find_element(By.ID, 'uw-message-submit-button').click()
 
     time.sleep(2)
